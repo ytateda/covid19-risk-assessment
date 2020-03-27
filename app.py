@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, url_for, redirect, send_file, request, jsonify, render_template
 app = Flask(__name__)
 
 import pandas as pd
@@ -7,8 +7,12 @@ from bs4 import BeautifulSoup
 import json
 import pdb
 import os
-from PIL import Image, ImageDraw
-
+from PIL import Image
+import numpy as np
+import math
+import random
+from matplotlib import pyplot as plt
+from IPython.display import clear_output
 @app.route("/")
 def hello():
     return "Hello World!"
@@ -42,21 +46,24 @@ def get_covid_df():
 
 @app.route("/sim-viral-spread")
 def sim_viral_spread():
-    population = int(request.args.get("population", ""))
-    time = int(request.args.get("time", ""))
-    initial = int(request.args.get("initial", ""))
-    
+    population = int(request.args.get("population", 0))
+    time = int(request.args.get("time", 0))
+    initial = int(request.args.get("initial", 0))
+   
     if(time < 5):
         return "Error, enter a time higher than 5"
-
+    if(time == 0 or population == 0 or initial == 0):
+        return "Please enter valid arguments"
     ls = viral_spread(population, time, initial)
+    print(ls)
     create_gif(ls)
     remove_files(ls)
-    return send_file("out.gif", mimetype='image/gif')
+    return send_file('static/out.gif', mimetype='image/gif')
 
 def remove_files(ls):
     for im in ls[1]:
-        os.remove(im)
+        if os.path.exists(im):
+            os.remove(im)
 
 def viral_spread(population,time,initial):
     grid_space=int(math.sqrt(population))
@@ -85,11 +92,12 @@ def viral_spread(population,time,initial):
                     y_step=j+np.random.randint(-1,2)
                     grid[x_step,y_step]=1
 
-    infectioncount.append(np.count_nonzero(grid))
-    plt.figure()
-    plt.imshow(grid, interpolation='none', vmin=0, vmax=1, aspect='equal')
-    plt.savefig('plot{}.png'.format(str(a)))
-    plot_list.append('plot{}.png'.format(str(a)))
+        infectioncount.append(np.count_nonzero(grid))
+        plt.figure()
+        plt.imshow(grid, interpolation='none', vmin=0, vmax=1, aspect='equal')
+        plt.savefig('plot{}.png'.format(str(a)))
+        plot_list.append('plot{}.png'.format(str(a)))
+        plt.close()
     return [infectioncount[-1],plot_list]
 
 def create_gif(ls):
@@ -98,8 +106,8 @@ def create_gif(ls):
     images = []
     for im_path in ls[1]:
         im = Image.open(im_path)
-    images.append(im)
-    images[0].save('out.gif', save_all=True, append_images=images, duration=15, loop=1)
+        images.append(im)
+    images[0].save('static/out.gif', save_all=True, append_images=images, duration=15, loop=0)
 
 if __name__ == "__main__":
   app.run(host="0.0.0.0", port=80)
