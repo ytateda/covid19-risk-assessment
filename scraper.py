@@ -1,4 +1,4 @@
-def return_active_cases(country):
+def return_active_cases(country_name):
   import pandas as pd
   import requests
   from bs4 import BeautifulSoup
