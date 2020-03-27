@@ -36,4 +36,4 @@ def viral_spread(population,time,initial):
     plt.figure()
     plt.imshow(grid, interpolation='none', vmin=0, vmax=1, aspect='equal')
     #plot_list.append(plt)
-    return infectioncount[-1]
+  return infectioncount[-1]
