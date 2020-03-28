@@ -48,14 +48,15 @@ def get_covid_df():
 def sim_viral_spread():
     population = int(request.args.get("population", 0))
     time = int(request.args.get("time", 0))
-    initial = int(request.args.get("initial", 0))
-   
+    initial = int(request.args.get("initial", 0)) 
+    movement = int(request.args.get("movement", 20))
+    
     if(time < 5):
         return "Error, enter a time higher than 5"
     if(time == 0 or population == 0 or initial == 0):
         return "Please enter valid arguments"
-    ls = viral_spread(population, time, initial)
-    print(ls)
+    ls = viral_spread(population, time, initial, movement)
+    #print(ls)
     create_gif(ls)
     remove_files(ls)
     return send_file('static/out.gif', mimetype='image/gif')
@@ -64,6 +65,17 @@ def remove_files(ls):
     for im in ls[1]:
         if os.path.exists(im):
             os.remove(im)
+
+@app.route("/get-infection-count")
+def get_infection_count():
+    population = int(request.args.get("population", 0))
+    time = int(request.args.get("time", 0))
+    initial = int(request.args.get("initial", 0))
+    movement = int(request.args.get("movement", 20))
+    if(time == 0 or population == 0 or initial == 0):
+        return "Please enter valid arguments"
+    infections = viral_spread_no_gif(population, time, initial, movement)
+    return jsonify(infections=infections)
 
 def viral_spread(population,hour,initial,movement):
   time =hour*4
@@ -143,7 +155,8 @@ def create_gif(ls):
     images = []
     for im_path in ls[1]:
         im = Image.open(im_path)
-        images.append(im)
+        images.append(im.copy())
+        im.close()
     images[0].save('static/out.gif', save_all=True, append_images=images, duration=15, loop=0)
 
 if __name__ == "__main__":
