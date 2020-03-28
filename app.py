@@ -77,6 +77,7 @@ def get_infection_count():
     infections = viral_spread_no_gif(population, time, initial, movement)
     return jsonify(infections=infections)
 
+def viral_spread(population,hour,initial,movement):
     time =hour*4
     grid_space=int(math.sqrt(population))
     grid=np.zeros((grid_space,grid_space))
@@ -95,7 +96,7 @@ def get_infection_count():
     plot_list=[]
     infectioncount=[]
 
-    for a in range(0,time): 
+    for t in range(0,time): 
         for i in range(0,grid_space-1):
           for j in range(0,grid_space-1):
             if grid[i,j]==1:
@@ -111,11 +112,11 @@ def get_infection_count():
                 grid[i,j]=0
 
         infectioncount.append(np.count_nonzero(grid))
-        print(a)
+        #print(a)
         plt.figure()
         plt.imshow(grid, interpolation='none', vmin=0, vmax=1, aspect='equal')
-        plt.savefig('plot{}.png'.format(str(a)))
-        plot_list.append('plot{}.png'.format(str(a)))
+        plt.savefig('plot{}.png'.format(str(t)))
+        plot_list.append('plot{}.png'.format(str(t)))
         plt.close()
     return (infectioncount[-1],plot_list)
 
@@ -161,4 +162,5 @@ def create_gif(ls):
     images[0].save('static/out.gif', save_all=True, append_images=images, duration=15, loop=0)
 
 if __name__ == "__main__":
-  app.run(host="0.0.0.0", port=80)
+    print( viral_spread(1000, 10, 1, 20))
+    app.run(host="0.0.0.0", port=80)
