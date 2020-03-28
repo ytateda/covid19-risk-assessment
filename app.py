@@ -99,12 +99,12 @@ def viral_spread(population,hour,initial,movement):
             grid[x_switch,y_switch]=1
             grid[i,j]=0
 
-      infectioncount.append(np.count_nonzero(grid))
-      plt.figure()
-      plt.imshow(grid, interpolation='none', vmin=0, vmax=1, aspect='equal')
-      plt.savefig('plot{}.png'.format(str(a)))
-      plot_list.append('plot{}.png'.format(str(a)))
-      plt.close()
+   infectioncount.append(np.count_nonzero(grid))
+   plt.figure()
+   plt.imshow(grid, interpolation='none', vmin=0, vmax=1, aspect='equal')
+   plt.savefig('plot{}.png'.format(str(a)))
+   plot_list.append('plot{}.png'.format(str(a)))
+   plt.close()
   return (infectioncount[-1],plot_list)
 
 def viral_spread_no_gif(population,hour,initial,movement):
@@ -134,7 +134,7 @@ def viral_spread_no_gif(population,hour,initial,movement):
             grid[x_switch,y_switch]=1
             grid[i,j]=0
 
-      infectioncount.append(np.count_nonzero(grid))
+    infectioncount.append(np.count_nonzero(grid))
   return infectioncount[-1]
 
 def create_gif(ls):
