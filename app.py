@@ -13,6 +13,8 @@ import math
 import random
 from matplotlib import pyplot as plt
 from IPython.display import clear_output
+from urllib.request import urlopen
+
 @app.route("/")
 def hello():
     return "Hello World!"
@@ -79,8 +81,8 @@ def get_infection_count():
 
 @app.route("/get-tests")
 def get_tests_by_country():
-    country = str(requests.args.get("country", "USA"))
-    return jsonify(get_tests(country))
+    country = str(request.args.get("country", "USA"))
+    return jsonify(number_of_tests=get_tests(country))
     
 def viral_spread(population,hour,initial,movement):
     time =hour*4
@@ -155,8 +157,6 @@ def viral_spread_no_gif(population,hour,initial,movement):
 
         infectioncount.append(np.count_nonzero(grid))
     return infectioncount[-1]
-from urllib.request import urlopen
-from bs4 import BeautifulSoup
 
 def get_tests(country):
     html = urlopen("https://en.wikipedia.org/wiki/COVID-19_testing")
@@ -180,7 +180,6 @@ def get_tests(country):
         cells = row.find_all('td')
         list_tests += str(cells[0])
     list_tests = list_tests.replace('<td>','').replace('</td>','').replace(',','').replace('\n',' ').split(' ')
-
     return (list_tests[country_list.index(country)] if country in country_list else 0)
 
 
@@ -195,5 +194,4 @@ def create_gif(ls):
     images[0].save('static/out.gif', save_all=True, append_images=images, duration=15, loop=0)
 
 if __name__ == "__main__":
-    print( viral_spread(1000, 10, 1, 20))
     app.run(host="0.0.0.0", port=80)
