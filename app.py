@@ -77,6 +77,11 @@ def get_infection_count():
     infections = viral_spread_no_gif(population, time, initial, movement)
     return jsonify(infections=infections)
 
+@app.route("/get-tests")
+def get_tests_by_country():
+    country = str(requests.args.get("country", "USA"))
+    return jsonify(get_tests(country))
+    
 def viral_spread(population,hour,initial,movement):
     time =hour*4
     grid_space=int(math.sqrt(population))
@@ -150,6 +155,34 @@ def viral_spread_no_gif(population,hour,initial,movement):
 
         infectioncount.append(np.count_nonzero(grid))
     return infectioncount[-1]
+from urllib.request import urlopen
+from bs4 import BeautifulSoup
+
+def get_tests(country):
+    html = urlopen("https://en.wikipedia.org/wiki/COVID-19_testing")
+    content = BeautifulSoup(html, 'html.parser')
+
+    table = content.find_all('table')
+    table = table[1]
+    rows = table.find_all('tr')
+    rows = rows[1:(len(rows)-1)]
+
+    list_tests = ''
+    country_list = []
+
+    for row in rows:
+        cells = row.find_all('th')
+        for cell in cells:
+            country_list.append(cell.text.rstrip().lstrip())
+    country_list[country_list.index('United States (unofficial tracking)')] = 'United States'
+
+    for row in rows:
+        cells = row.find_all('td')
+        list_tests += str(cells[0])
+    list_tests = list_tests.replace('<td>','').replace('</td>','').replace(',','').replace('\n',' ').split(' ')
+
+    return (list_tests[country_list.index(country)] if country in country_list else 0)
+
 
 def create_gif(ls):
     if(ls[0]==0):
